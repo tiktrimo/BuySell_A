@@ -4,6 +4,7 @@
 
 using namespace std;
 
+
 class IStockBrockerDriver
 {
 public:
@@ -75,6 +76,37 @@ public:
     IStockBrockerDriver* getStockBroker() {
         return StockBrockerDriver;
     }
+    void setStockBroker(IStockBrockerDriver* broker) {
+        StockBrockerDriver = broker;
+    }
+    int buyNiceTiming(string stockCode, int prices){
+        int currentPrice = StockBrockerDriver->getPrice(stockCode);
+        int nextPrices; 
+        for (int i = 0;i < 4; i++) {
+            nextPrices = StockBrockerDriver->getPrice(stockCode);
+            if (nextPrices > currentPrice) {
+                currentPrice = nextPrices;
+            }
+            else {
+                return -1;
+            }
+        }
+        if (prices >= currentPrice)
+        {
+            StockBrockerDriver->buy(stockCode, prices, maxCount);
+            return prices;
+        }
+        else
+        {
+            StockBrockerDriver->buy(stockCode, currentPrice, maxCount);
+            return currentPrice;
+        }
+    }
+
+    void setmaxCount(int count) {
+        maxCount = count;
+    }
 private:
     IStockBrockerDriver* StockBrockerDriver = nullptr;
+    int maxCount = 1;
 };

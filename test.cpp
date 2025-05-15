@@ -7,6 +7,14 @@ using namespace testing;
 using namespace std;
 
 
+class MockStockBrockerDriver : public IStockBrockerDriver {
+public:
+    MOCK_METHOD(void, login, (std::string id, std::string password), (override));
+    MOCK_METHOD(void, buy, (std::string stockCode, int price, int count), (override));
+    MOCK_METHOD(void, sell, (std::string stockCode, int price, int count), (override));
+    MOCK_METHOD(int, getPrice, (std::string stockCode), (override));
+};
+
 // Test용 Fixture
 class StockBrokerDriverTest : public::testing::Test {
 protected:
@@ -33,6 +41,71 @@ protected:
     }
 };
 
+TEST(AutoTradingSystemTest, BuyNiceTimingwiehCurrentPrice) {
+
+    AutoTradingSystem autoSystem;
+    MockStockBrockerDriver mockDriver;
+
+    // mock 객체를 시스템에 주입
+    autoSystem.setStockBroker(&mockDriver);
+
+    // getPrice 호출 시 특정 값 반환하도록 설정
+    EXPECT_CALL(mockDriver, getPrice("AAPL"))
+        .Times(AnyNumber())
+        .WillOnce(Return(123))
+        .WillOnce(Return(124))
+        .WillOnce(Return(125))
+        .WillOnce(Return(126))
+        .WillOnce(Return(127));
+
+    int ret = autoSystem.buyNiceTiming("AAPL", 100);
+
+    EXPECT_EQ(ret, 127);
+}
+
+TEST(AutoTradingSystemTest, BuyNiceTimingwiehUserPrice) {
+
+    AutoTradingSystem autoSystem;
+    MockStockBrockerDriver mockDriver;
+
+    // mock 객체를 시스템에 주입
+    autoSystem.setStockBroker(&mockDriver);
+
+    // getPrice 호출 시 특정 값 반환하도록 설정
+    EXPECT_CALL(mockDriver, getPrice("AAPL"))
+        .Times(AnyNumber())
+        .WillOnce(Return(123))
+        .WillOnce(Return(124))
+        .WillOnce(Return(125))
+        .WillOnce(Return(126))
+        .WillOnce(Return(127));
+
+    int ret = autoSystem.buyNiceTiming("AAPL", 135);
+
+    EXPECT_EQ(ret, 135);
+}
+
+TEST(AutoTradingSystemTest, BuyNiceTimingFail) {
+
+    AutoTradingSystem autoSystem;
+    MockStockBrockerDriver mockDriver;
+
+    // mock 객체를 시스템에 주입
+    autoSystem.setStockBroker(&mockDriver);
+
+    // getPrice 호출 시 특정 값 반환하도록 설정
+    EXPECT_CALL(mockDriver, getPrice("AAPL"))
+        .Times(AnyNumber())
+        .WillOnce(Return(123))
+        .WillOnce(Return(124))
+        .WillOnce(Return(125))
+        .WillOnce(Return(122))
+        .WillOnce(Return(127));
+
+    int ret = autoSystem.buyNiceTiming("AAPL", 135);
+
+    EXPECT_EQ(ret, -1);
+}
 // Unit Test Code. 계속 추가하겠습니다.
 TEST_F(NemoDriverTest, NemoLoginTestSuccess) {
     std::stringstream buffer;
@@ -131,7 +204,6 @@ TEST(StockBrokerDriverTest, selectWrongBroker) {
     autoTradingSystem.selectStockBroker("MANGO");
     EXPECT_THAT(autoTradingSystem.getStockBroker(), IsNull());
 }
-
 
 int main()
 {
