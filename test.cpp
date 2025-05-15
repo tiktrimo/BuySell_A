@@ -2,20 +2,8 @@
 #include <string>
 #include "kiwer_api.cpp"
 #include "nemo_api.cpp"
-
 using namespace testing;
 using namespace std;
-
-
-//// Class정의 및 구현. 다른 파일로 이동하셔도 좋을 것 같습니다.
-//class AutoTradingSystem
-//{
-//public:
-//private:
-//    IStockBrockerDriver* StockBrockerDriver;
-//};
-
-// Interface정의 및 구현. 다른 파일로 이동하셔도 좋을 것 같습니다.
 
 class IStockBrockerDriver
 {
@@ -106,6 +94,7 @@ private:
     int sellPrice1, sellPrice2;
 };
 
+
 // Test용 Fixture
 class StockBrokerDriverTest : public::testing::Test {
 protected:
@@ -118,10 +107,10 @@ protected:
     }
 };
 
-class KiwiDriverTest : public StockBrokerDriverTest {
+class KiwerDriverTest : public StockBrokerDriverTest {
 protected:
     std::unique_ptr<IStockBrockerDriver> createDriver() override {
-        return std::make_unique<KiwiDriver>();
+        return std::make_unique<KiwerDriver>();
     }
 };
 
@@ -145,7 +134,7 @@ TEST_F(NemoDriverTest, NemoLoginTestSuccess) {
     EXPECT_EQ(output, "[NEMO]username login GOOD\n");
 }
 
-TEST_F(KiwiDriverTest, KiwiLoginTestSuccess) {
+TEST_F(KiwerDriverTest, KiwiLoginTestSuccess) {
     std::stringstream buffer;
     std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
 
@@ -157,7 +146,7 @@ TEST_F(KiwiDriverTest, KiwiLoginTestSuccess) {
     EXPECT_EQ(output, "username login success\n");
 }
 
-TEST_F(KiwiDriverTest, BuyOutputTest) {
+TEST_F(KiwerDriverTest, BuyOutputTest) {
     std::stringstream buffer;
     std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
 
@@ -187,7 +176,7 @@ TEST_F(NemoDriverTest, GetPriceTest) {
 
     EXPECT_THAT(price, Gt(0));
 }
-TEST_F(KiwiDriverTest, GetPriceTest) {
+TEST_F(KiwerDriverTest, GetPriceTest) {
 
 
     int price = driver->getPrice("AAPL");
@@ -196,7 +185,7 @@ TEST_F(KiwiDriverTest, GetPriceTest) {
 }
 
 
-TEST_F(KiwiDriverTest, SellOutputTest) {
+TEST_F(KiwerDriverTest, SellOutputTest) {
     std::stringstream buffer;
     std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
 
