@@ -2,9 +2,97 @@
 #include <string>
 #include "kiwer_api.cpp"
 #include "nemo_api.cpp"
-#include "AutoTradingSystem.cpp"
 using namespace testing;
 using namespace std;
+
+class IStockBrockerDriver
+{
+public:
+	virtual ~IStockBrockerDriver() = default;
+	virtual void login(std::string id, std::string password) = 0;
+	virtual void buy(std::string stockCode, int price, int count) = 0;
+	virtual void sell(std::string stockCode, int price, int count) = 0;
+	virtual int getPrice(std::string stockCode) = 0;
+};
+
+class KiwiDriver : public IStockBrockerDriver
+{
+public:
+    
+    void login(std::string id, std::string password)
+    {
+        Kiwer.login(id, password);
+    };
+    void buy(std::string stockCode, int price, int count){
+        Kiwer.buy(stockCode, count, price);
+    };
+    void sell(std::string stockCode, int price, int count){
+        Kiwer.sell(stockCode, count, price);
+    };
+    int getPrice(std::string stockCode) {
+        return Kiwer.currentPrice(stockCode);
+    }
+private:
+    KiwerAPI Kiwer;
+};
+
+class NemoDriver : public IStockBrockerDriver
+{
+    void login(std::string id, std::string password)
+    {
+        Nemo.certification(id, password);
+    };
+    void buy(std::string stockCode, int price, int count){
+        Nemo.purchasingStock(stockCode, price, count);
+    };
+    void sell(std::string stockCode, int price, int count){
+        Nemo.sellingStock(stockCode, price, count);
+    };
+    int getPrice(std::string stockCode) {
+        return Nemo.getMarketPrice(stockCode, 1);
+    }
+private:
+    NemoAPI Nemo;
+};
+
+class AutoTradingSystem {
+public:
+    int selectStockBroker(string brokerName) {
+        int ret = 0;
+
+        if (brokerName == "KIWER") {
+            StockBrockerDriver = new KiwiDriver;
+        }
+        else if (brokerName == "NEMO") {
+            StockBrockerDriver = new NemoDriver;
+        }
+        else {
+            ret = -1;
+        }
+        return ret;
+    }
+    void setPrice(int price1, int price2) {
+        this->sellPrice1 = price1;
+        this->sellPrice2 = price2;
+    }
+    string sellNiceTiming(string stockCode, int count) {
+       // int price1 = StockBrockerDriver->getPrice(stockCode);
+        //int price2 = StockBrockerDriver->getPrice(stockCode);
+        if (sellPrice1 > sellPrice2) {
+            StockBrockerDriver->sell(stockCode, sellPrice2, count);
+            return "sell";
+        }
+        else return "no sell";
+    }
+    IStockBrockerDriver* getStockBroker() {
+        return StockBrockerDriver;
+    }
+   
+    IStockBrockerDriver *StockBrockerDriver = nullptr;
+
+private:
+    int sellPrice1, sellPrice2;
+};
 
 
 // Test용 Fixture
@@ -132,6 +220,35 @@ TEST(StockBrokerDriverTest, selectWrongBroker) {
     EXPECT_THAT(autoTradingSystem.getStockBroker(), IsNull());
 }
 
+
+TEST(StockBrokerDriverTest, KIWERsellNiceTimingTest) {
+    AutoTradingSystem autoTradingSystem;
+    autoTradingSystem.selectStockBroker("KIWER");
+    autoTradingSystem.setPrice(2, 1);
+    
+    EXPECT_EQ("sell", autoTradingSystem.sellNiceTiming("AAPL", 3));
+}
+TEST(StockBrokerDriverTest, KIWERNotsellNiceTimingTest) {
+    AutoTradingSystem autoTradingSystem;
+    autoTradingSystem.selectStockBroker("KIWER");
+    autoTradingSystem.setPrice(1,2);
+    
+    EXPECT_EQ("no sell", autoTradingSystem.sellNiceTiming("AAPL", 3));
+}
+TEST(StockBrokerDriverTest, NEMOsellNiceTimingTest) {
+    AutoTradingSystem autoTradingSystem;
+    autoTradingSystem.selectStockBroker("NEMO");
+    autoTradingSystem.setPrice(2, 1);
+    
+    EXPECT_EQ("sell", autoTradingSystem.sellNiceTiming("AAPL", 3));
+}
+TEST(StockBrokerDriverTest, NEMONotsellNiceTimingTest) {
+    AutoTradingSystem autoTradingSystem;
+    autoTradingSystem.selectStockBroker("NEMO");
+    autoTradingSystem.setPrice(1,2);
+    
+    EXPECT_EQ("no sell", autoTradingSystem.sellNiceTiming("AAPL", 3));
+}
 
 int main()
 {
