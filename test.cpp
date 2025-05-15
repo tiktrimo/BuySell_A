@@ -2,6 +2,7 @@
 #include <string>
 
 using namespace testing;
+using namespace std;
 
 // Interface?ïÏùò Î∞?Íµ¨ÌòÑ. ?§Î•∏ ?åÏùºÎ°??¥Îèô?òÏÖî??Ï¢ãÏùÑ Í≤?Í∞ôÏäµ?àÎã§.
 
@@ -40,8 +41,32 @@ class NemoDriver : public IStockBrockerDriver
     void addUser(std::string id, std::string password){};
 };
 
+class AutoTradingSystem {
+public:
+    int selectStockBroker(string brokerName) {
+        int ret = 0;
+
+        if (brokerName == "KIWER") {
+            StockBrockerDriver = new KiwiDriver;
+        }
+        else if (brokerName == "NEMO") {
+            StockBrockerDriver = new NemoDriver;
+        }
+        else {
+            ret = -1;
+        }
+        return ret;
+    }
+
+    IStockBrockerDriver* getStockBroker() {
+        return StockBrockerDriver;
+    }
+   
+    IStockBrockerDriver *StockBrockerDriver = nullptr;
+};
+
 // TestøÎ Fixture
-class StockBrokerDriverTest : public ::testing::Test {
+class StockBrokerDriverTest : public::testing::Test {
 protected:
     std::unique_ptr<IStockBrockerDriver> driver;
 
@@ -87,6 +112,20 @@ TEST_F(NemoDriverTest, LoginTestFail) {
     bool loginResultFail = driver->login("username", "password_wrong");
     EXPECT_EQ(loginResultFail, 0);
 }
+
+// Select StockBoroker TC
+TEST(StockBrokerDriverTest, selectCorrectBroker) {
+    AutoTradingSystem autoTradingSystem;
+    
+    EXPECT_EQ(0, autoTradingSystem.selectStockBroker("KIWER"));
+}
+
+TEST(StockBrokerDriverTest, selectWrongBroker) {
+    AutoTradingSystem autoTradingSystem;
+
+    EXPECT_THAT(autoTradingSystem.getStockBroker(), IsNull());
+}
+
 
 int main()
 {
