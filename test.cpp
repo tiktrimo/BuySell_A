@@ -4,8 +4,10 @@
 #include <string>
 
 using namespace testing;
+using namespace std;
 
-//// ClassÁ¤ÀÇ ¹× ±¸Çö. ´Ù¸¥ ÆÄÀÏ·Î ÀÌµ¿ÇÏ¼Åµµ ÁÁÀ» °Í °°½À´Ï´Ù.
+
+//// Classì •ì˜ ë° êµ¬í˜„. ë‹¤ë¥¸ íŒŒì¼ë¡œ ì´ë™í•˜ì…”ë„ ì¢‹ì„ ê²ƒ ê°™ìŠµë‹ˆë‹¤.
 //class AutoTradingSystem
 //{
 //public:
@@ -13,7 +15,7 @@ using namespace testing;
 //    IStockBrockerDriver* StockBrockerDriver;
 //};
 
-// InterfaceÁ¤ÀÇ ¹× ±¸Çö. ´Ù¸¥ ÆÄÀÏ·Î ÀÌµ¿ÇÏ¼Åµµ ÁÁÀ» °Í °°½À´Ï´Ù.
+// Interfaceì •ì˜ ë° êµ¬í˜„. ë‹¤ë¥¸ íŒŒì¼ë¡œ ì´ë™í•˜ì…”ë„ ì¢‹ì„ ê²ƒ ê°™ìŠµë‹ˆë‹¤.
 
 class IStockBrockerDriver
 {
@@ -55,8 +57,32 @@ private:
     NemoAPI Nemo;
 };
 
-// Test¿ë Fixture
-class StockBrokerDriverTest : public ::testing::Test {
+class AutoTradingSystem {
+public:
+    int selectStockBroker(string brokerName) {
+        int ret = 0;
+
+        if (brokerName == "KIWER") {
+            StockBrockerDriver = new KiwiDriver;
+        }
+        else if (brokerName == "NEMO") {
+            StockBrockerDriver = new NemoDriver;
+        }
+        else {
+            ret = -1;
+        }
+        return ret;
+    }
+
+    IStockBrockerDriver* getStockBroker() {
+        return StockBrockerDriver;
+    }
+   
+    IStockBrockerDriver *StockBrockerDriver = nullptr;
+};
+
+// Testìš© Fixture
+class StockBrokerDriverTest : public::testing::Test {
 protected:
     std::unique_ptr<IStockBrockerDriver> driver;
 
@@ -81,7 +107,7 @@ protected:
     }
 };
 
-// Unit Test Code. °è¼Ó Ãß°¡ÇÏ°Ú½À´Ï´Ù.
+// Unit Test Code. ê³„ì† ì¶”ê°€í•˜ê² ìŠµë‹ˆë‹¤.
 TEST_F(NemoDriverTest, NemoLoginTestSuccess) {
     std::stringstream buffer;
     std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
@@ -129,6 +155,7 @@ TEST_F(NemoDriverTest, BuyOutputTest) {
     EXPECT_EQ(output, "[NEMO]AAPL buy stock ( price : 5 ) * ( count : 100)");
 }
 
+
 TEST_F(KiwiDriverTest, SellOutputTest) {
     std::stringstream buffer;
     std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
@@ -151,6 +178,19 @@ TEST_F(NemoDriverTest, SellOutputTest) {
     std::string output = buffer.str();
     EXPECT_EQ(output, "[NEMO]AAPL sell stock ( price : 5 ) * ( count : 100)\n");
 }
+
+TEST(StockBrokerDriverTest, selectCorrectBroker) {
+    AutoTradingSystem autoTradingSystem;
+    
+    EXPECT_EQ(0, autoTradingSystem.selectStockBroker("KIWER"));
+}
+
+TEST(StockBrokerDriverTest, selectWrongBroker) {
+    AutoTradingSystem autoTradingSystem;
+
+    EXPECT_THAT(autoTradingSystem.getStockBroker(), IsNull());
+}
+
 
 int main()
 {
