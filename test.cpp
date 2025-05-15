@@ -31,7 +31,6 @@ class KiwiDriver : public IStockBrockerDriver
 {
 public:
     
-    void addUser(std::string id, std::string password){};
     void login(std::string id, std::string password)
     {
         Kiwer.login(id, password);
