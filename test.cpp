@@ -25,8 +25,6 @@ public:
 	virtual void buy(std::string stockCode, int price, int count) = 0;
 	virtual void sell(std::string stockCode, int price, int count) = 0;
 	virtual int getPrice(std::string stockCode) = 0;
-  	virtual void addUser(std::string id, std::string password) = 0;
-
 };
 
 class KiwiDriver : public IStockBrockerDriver
