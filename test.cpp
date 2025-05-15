@@ -37,32 +37,34 @@ public:
 // Unit Test Code. 계속 추가하겠습니다.
 
 TEST(MockDriverTest, LoginCalledWithCorrectArguments) {
-    MockDriver mock;
-    EXPECT_CALL(mock, login(StrEq("username"), StrEq("password"))).Times(1);
+    std::unique_ptr<MockDriver> driver = std::make_unique<MockDriver>();
+    EXPECT_CALL(*driver, login(StrEq("username"), StrEq("password"))).Times(1);
 
-    mock.login("username", "password");
+    driver->login("username", "password");
 }
 
 TEST(MockDriverTest, BuyCalledWithCorrectArguments) {
-    MockDriver mock;
-    EXPECT_CALL(mock, buy(StrEq("AAPL"), 200, 10)).Times(1);
+    std::unique_ptr<MockDriver> driver = std::make_unique<MockDriver>();
+    EXPECT_CALL(*driver, buy(StrEq("AAPL"), 200, 10)).Times(1);
 
-    mock.buy("AAPL", 200, 10);
+    driver->buy("AAPL", 200, 10);
 }
 
 TEST(MockDriverTest, SellCalledWithCorrectArguments) {
-    MockDriver mock;
-    EXPECT_CALL(mock, sell(StrEq("AAPL"), 200, 10)).Times(1);
+    std::unique_ptr<MockDriver> driver = std::make_unique<MockDriver>();
+    EXPECT_CALL(*driver, sell(StrEq("AAPL"), 200, 10)).Times(1);
 
-    mock.sell("AAPL", 200, 10);
+    driver->sell("AAPL", 200, 10);
 }
 
 TEST(MockDriverTest, GetPriceCalledWithCorrectStockCode) {
-    MockDriver mock;
-    EXPECT_CALL(mock, getPrice(StrEq("AAPL"))).Times(1);
+    std::unique_ptr<MockDriver> driver = std::make_unique<MockDriver>();
+    EXPECT_CALL(*driver, getPrice(StrEq("AAPL"))).Times(1);
 
-    mock.getPrice("AAPL");
+    driver->getPrice("AAPL");
 }
+
+
 
 int main()
 {
