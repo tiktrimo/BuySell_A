@@ -9,62 +9,84 @@ class IStockBrockerDriver
 {
 public:
 	virtual ~IStockBrockerDriver() = default;
-	virtual void login(std::string id, std::string password) = 0;
+	virtual bool login(std::string id, std::string password) = 0;
 	virtual void buy(std::string stockCode, int price, int count) = 0;
 	virtual void sell(std::string stockCode, int price, int count) = 0;
 	virtual void getPrice(std::string stockCode) = 0;
+
+    // login을 위해서 user를 추가합니다. match되지 않는 user가 없는 상태에서는 login실패, 있으면 성공
+    virtual void addUser(std::string id, std::string password) = 0;
 };
 
 class KiwiDriver : public IStockBrockerDriver
 {
+    bool login(std::string id, std::string password) { return false; };
+    void buy(std::string stockCode, int price, int count){};
+    void sell(std::string stockCode, int price, int count){};
+    void getPrice(std::string stockCode){};
 
+    // login을 위해서 user를 추가합니다. match되지 않는 user가 없는 상태에서는 login실패, 있으면 성공
+    void addUser(std::string id, std::string password){};
 };
 
 class NemoDriver : public IStockBrockerDriver
 {
+    bool login(std::string id, std::string password) { return false; };
+    void buy(std::string stockCode, int price, int count){};
+    void sell(std::string stockCode, int price, int count){};
+    void getPrice(std::string stockCode){};
 
+    // login을 위해서 user를 추가합니다. match되지 않는 user가 없는 상태에서는 login실패, 있으면 성공
+    void addUser(std::string id, std::string password){};
 };
 
-class MockDriver : public IStockBrockerDriver
-{
-public:
-	MOCK_METHOD(void, login, (std::string id, std::string password), (override));
-	MOCK_METHOD(void, buy, (std::string stockCode, int price, int count), (override));
-	MOCK_METHOD(void, sell, (std::string stockCode, int price, int count), (override));
-	MOCK_METHOD(void, getPrice, (std::string stockCode), (override));
+// Test용 Fixture
+class StockBrokerDriverTest : public ::testing::Test {
+protected:
+    std::unique_ptr<IStockBrockerDriver> driver;
+
+    virtual std::unique_ptr<IStockBrockerDriver> createDriver() = 0;
+
+    void SetUp() override {
+        driver = createDriver();
+    }
+};
+
+class KiwiDriverTest : public StockBrokerDriverTest {
+protected:
+    std::unique_ptr<IStockBrockerDriver> createDriver() override {
+        return std::make_unique<KiwiDriver>();
+    }
+};
+
+class NemoDriverTest : public StockBrokerDriverTest {
+protected:
+    std::unique_ptr<IStockBrockerDriver> createDriver() override {
+        return std::make_unique<NemoDriver>();
+    }
 };
 
 // Unit Test Code. 계속 추가하겠습니다.
-
-TEST(MockDriverTest, LoginCalledWithCorrectArguments) {
-    std::unique_ptr<MockDriver> driver = std::make_unique<MockDriver>();
-    EXPECT_CALL(*driver, login(StrEq("username"), StrEq("password"))).Times(1);
-
-    driver->login("username", "password");
+TEST_F(KiwiDriverTest, LoginTestSuccess) {
+    driver->addUser("username", "password");
+    bool loginResultSuccess = driver->login("username", "password");
+    EXPECT_EQ(loginResultSuccess, 1);
 }
-
-TEST(MockDriverTest, BuyCalledWithCorrectArguments) {
-    std::unique_ptr<MockDriver> driver = std::make_unique<MockDriver>();
-    EXPECT_CALL(*driver, buy(StrEq("AAPL"), 200, 10)).Times(1);
-
-    driver->buy("AAPL", 200, 10);
+TEST_F(KiwiDriverTest, LoginTestFail) {
+    driver->addUser("username", "password");
+    bool loginResultFail = driver->login("username", "password_wrong");
+    EXPECT_EQ(loginResultFail, 0);
 }
-
-TEST(MockDriverTest, SellCalledWithCorrectArguments) {
-    std::unique_ptr<MockDriver> driver = std::make_unique<MockDriver>();
-    EXPECT_CALL(*driver, sell(StrEq("AAPL"), 200, 10)).Times(1);
-
-    driver->sell("AAPL", 200, 10);
+TEST_F(NemoDriverTest, LoginTestSuccess) {
+    driver->addUser("username", "password");
+    bool loginResultSuccess = driver->login("username", "password");
+    EXPECT_EQ(loginResultSuccess, 1);
 }
-
-TEST(MockDriverTest, GetPriceCalledWithCorrectStockCode) {
-    std::unique_ptr<MockDriver> driver = std::make_unique<MockDriver>();
-    EXPECT_CALL(*driver, getPrice(StrEq("AAPL"))).Times(1);
-
-    driver->getPrice("AAPL");
+TEST_F(NemoDriverTest, LoginTestFail) {
+    driver->addUser("username", "password");
+    bool loginResultFail = driver->login("username", "password_wrong");
+    EXPECT_EQ(loginResultFail, 0);
 }
-
-
 
 int main()
 {
