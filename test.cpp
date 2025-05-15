@@ -33,7 +33,9 @@ class KiwiDriver : public IStockBrockerDriver
     {
         Kiwer.login(id, password);
     };
-    void buy(std::string stockCode, int price, int count){};
+    void buy(std::string stockCode, int price, int count){
+        Kiwer.buy(stockCode, count, price);
+    };
     void sell(std::string stockCode, int price, int count){
         Kiwer.sell(stockCode, price, count);
     };
@@ -48,7 +50,9 @@ class NemoDriver : public IStockBrockerDriver
     {
         Nemo.certification(id, password);
     };
-    void buy(std::string stockCode, int price, int count){};
+    void buy(std::string stockCode, int price, int count){
+        Nemo.purchasingStock(stockCode, price, count);
+    };
     void sell(std::string stockCode, int price, int count){
         Nemo.sellingStock(stockCode, price, count);
     };
@@ -141,7 +145,7 @@ TEST_F(KiwiDriverTest, BuyOutputTest) {
     std::cout.rdbuf(old);
 
     std::string output = buffer.str();
-    EXPECT_EQ(output, "AAPL : Buy stock ( 100 * 5)");
+    EXPECT_EQ(output, "AAPL : Buy stock ( 5 * 100)\n");
 }
 TEST_F(NemoDriverTest, BuyOutputTest) {
     std::stringstream buffer;
@@ -152,7 +156,7 @@ TEST_F(NemoDriverTest, BuyOutputTest) {
     std::cout.rdbuf(old);
 
     std::string output = buffer.str();
-    EXPECT_EQ(output, "[NEMO]AAPL buy stock ( price : 5 ) * ( count : 100)");
+    EXPECT_EQ(output, "[NEMO]AAPL buy stock ( price : 5 ) * ( count : 100)\n");
 }
 
 
