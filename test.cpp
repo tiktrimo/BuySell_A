@@ -32,9 +32,7 @@ public:
 class KiwiDriver : public IStockBrockerDriver
 {
 public:
-    int getPrice(std::string stockCode) override {
-        return Kiwer.currentPrice(stockCode);
-    }
+    
     void addUser(std::string id, std::string password){};
     void login(std::string id, std::string password)
     {
@@ -46,7 +44,9 @@ public:
     void sell(std::string stockCode, int price, int count){
         Kiwer.sell(stockCode, price, count);
     };
-    void getPrice(std::string stockCode){};
+    int getPrice(std::string stockCode) {
+        return Kiwer.currentPrice(stockCode);
+    }
 private:
     KiwerAPI Kiwer;
 };
@@ -63,7 +63,7 @@ class NemoDriver : public IStockBrockerDriver
     void sell(std::string stockCode, int price, int count){
         Nemo.sellingStock(stockCode, price, count);
     };
-    int getPrice(std::string stockCode) override {
+    int getPrice(std::string stockCode) {
         return Nemo.getMarketPrice(stockCode, 1);
     }
 private:
