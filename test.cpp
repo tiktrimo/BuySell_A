@@ -83,12 +83,27 @@ public:
         }
         return ret;
     }
-
+    void setPrice(int price1, int price2) {
+        this->sellPrice1 = price1;
+        this->sellPrice2 = price2;
+    }
+    string sellNiceTiming(string stockCode, int count) {
+       // int price1 = StockBrockerDriver->getPrice(stockCode);
+        //int price2 = StockBrockerDriver->getPrice(stockCode);
+        if (sellPrice1 > sellPrice2) {
+            StockBrockerDriver->sell(stockCode, sellPrice2, count);
+            return "sell";
+        }
+        else return "no sell";
+    }
     IStockBrockerDriver* getStockBroker() {
         return StockBrockerDriver;
     }
    
     IStockBrockerDriver *StockBrockerDriver = nullptr;
+
+private:
+    int sellPrice1, sellPrice2;
 };
 
 // Test용 Fixture
@@ -216,6 +231,35 @@ TEST(StockBrokerDriverTest, selectWrongBroker) {
     EXPECT_THAT(autoTradingSystem.getStockBroker(), IsNull());
 }
 
+
+TEST(StockBrokerDriverTest, KIWERsellNiceTimingTest) {
+    AutoTradingSystem autoTradingSystem;
+    autoTradingSystem.selectStockBroker("KIWER");
+    autoTradingSystem.setPrice(2, 1);
+    
+    EXPECT_EQ("sell", autoTradingSystem.sellNiceTiming("AAPL", 3));
+}
+TEST(StockBrokerDriverTest, KIWERNotsellNiceTimingTest) {
+    AutoTradingSystem autoTradingSystem;
+    autoTradingSystem.selectStockBroker("KIWER");
+    autoTradingSystem.setPrice(1,2);
+    
+    EXPECT_EQ("no sell", autoTradingSystem.sellNiceTiming("AAPL", 3));
+}
+TEST(StockBrokerDriverTest, NEMOsellNiceTimingTest) {
+    AutoTradingSystem autoTradingSystem;
+    autoTradingSystem.selectStockBroker("NEMO");
+    autoTradingSystem.setPrice(2, 1);
+    
+    EXPECT_EQ("sell", autoTradingSystem.sellNiceTiming("AAPL", 3));
+}
+TEST(StockBrokerDriverTest, NEMONotsellNiceTimingTest) {
+    AutoTradingSystem autoTradingSystem;
+    autoTradingSystem.selectStockBroker("NEMO");
+    autoTradingSystem.setPrice(1,2);
+    
+    EXPECT_EQ("no sell", autoTradingSystem.sellNiceTiming("AAPL", 3));
+}
 
 int main()
 {
