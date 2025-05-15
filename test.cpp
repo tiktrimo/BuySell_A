@@ -34,7 +34,9 @@ class KiwiDriver : public IStockBrockerDriver
         Kiwer.login(id, password);
     };
     void buy(std::string stockCode, int price, int count){};
-    void sell(std::string stockCode, int price, int count){};
+    void sell(std::string stockCode, int price, int count){
+        Kiwer.sell(stockCode, price, count);
+    };
     void getPrice(std::string stockCode){};
 private:
     KiwerAPI Kiwer;
@@ -47,7 +49,9 @@ class NemoDriver : public IStockBrockerDriver
         Nemo.certification(id, password);
     };
     void buy(std::string stockCode, int price, int count){};
-    void sell(std::string stockCode, int price, int count){};
+    void sell(std::string stockCode, int price, int count){
+        Nemo.sellingStock(stockCode, price, count);
+    };
     void getPrice(std::string stockCode){};
 private:
     NemoAPI Nemo;
@@ -151,7 +155,30 @@ TEST_F(NemoDriverTest, BuyOutputTest) {
     EXPECT_EQ(output, "[NEMO]AAPL buy stock ( price : 5 ) * ( count : 100)");
 }
 
-// Select StockBoroker TC
+
+TEST_F(KiwiDriverTest, SellOutputTest) {
+    std::stringstream buffer;
+    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+
+    driver->sell("AAPL", 5, 100);
+
+    std::cout.rdbuf(old);
+
+    std::string output = buffer.str();
+    EXPECT_EQ(output, "AAPL : Sell stock ( 100 * 5)\n");
+}
+TEST_F(NemoDriverTest, SellOutputTest) {
+    std::stringstream buffer;
+    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+
+    driver->sell("AAPL", 5, 100);
+
+    std::cout.rdbuf(old);
+
+    std::string output = buffer.str();
+    EXPECT_EQ(output, "[NEMO]AAPL sell stock ( price : 5 ) * ( count : 100)\n");
+}
+
 TEST(StockBrokerDriverTest, selectCorrectBroker) {
     AutoTradingSystem autoTradingSystem;
     
