@@ -1,44 +1,56 @@
 #include "gmock/gmock.h"
+#include "kiwer_api.cpp"
+#include "nemo_api.cpp"
 #include <string>
 
 using namespace testing;
 using namespace std;
 
-// Interface?•ì˜ ë°?êµ¬í˜„. ?¤ë¥¸ ?Œì¼ë¡??´ë™?˜ì…”??ì¢‹ì„ ê²?ê°™ìŠµ?ˆë‹¤.
+
+//// Classì •ì˜ ë° êµ¬í˜„. ë‹¤ë¥¸ íŒŒì¼ë¡œ ì´ë™í•˜ì…”ë„ ì¢‹ì„ ê²ƒ ê°™ìŠµë‹ˆë‹¤.
+//class AutoTradingSystem
+//{
+//public:
+//private:
+//    IStockBrockerDriver* StockBrockerDriver;
+//};
+
+// Interfaceì •ì˜ ë° êµ¬í˜„. ë‹¤ë¥¸ íŒŒì¼ë¡œ ì´ë™í•˜ì…”ë„ ì¢‹ì„ ê²ƒ ê°™ìŠµë‹ˆë‹¤.
 
 class IStockBrockerDriver
 {
 public:
 	virtual ~IStockBrockerDriver() = default;
-	virtual bool login(std::string id, std::string password) = 0;
+	virtual void login(std::string id, std::string password) = 0;
 	virtual void buy(std::string stockCode, int price, int count) = 0;
 	virtual void sell(std::string stockCode, int price, int count) = 0;
 	virtual void getPrice(std::string stockCode) = 0;
-
-    // loginÀ» À§ÇØ¼­ user¸¦ Ãß°¡ÇÕ´Ï´Ù. matchµÇÁö ¾Ê´Â user°¡ ¾ø´Â »óÅÂ¿¡¼­´Â login½ÇÆĞ, ÀÖÀ¸¸é ¼º°ø
-    virtual void addUser(std::string id, std::string password) = 0;
 };
 
 class KiwiDriver : public IStockBrockerDriver
 {
-    bool login(std::string id, std::string password) { return false; };
+    void login(std::string id, std::string password)
+    {
+        Kiwer.login(id, password);
+    };
     void buy(std::string stockCode, int price, int count){};
     void sell(std::string stockCode, int price, int count){};
     void getPrice(std::string stockCode){};
-
-    // loginÀ» À§ÇØ¼­ user¸¦ Ãß°¡ÇÕ´Ï´Ù. matchµÇÁö ¾Ê´Â user°¡ ¾ø´Â »óÅÂ¿¡¼­´Â login½ÇÆĞ, ÀÖÀ¸¸é ¼º°ø
-    void addUser(std::string id, std::string password){};
+private:
+    KiwerAPI Kiwer;
 };
 
 class NemoDriver : public IStockBrockerDriver
 {
-    bool login(std::string id, std::string password) { return false; };
+    void login(std::string id, std::string password)
+    {
+        Nemo.certification(id, password);
+    };
     void buy(std::string stockCode, int price, int count){};
     void sell(std::string stockCode, int price, int count){};
     void getPrice(std::string stockCode){};
-
-    // loginÀ» À§ÇØ¼­ user¸¦ Ãß°¡ÇÕ´Ï´Ù. matchµÇÁö ¾Ê´Â user°¡ ¾ø´Â »óÅÂ¿¡¼­´Â login½ÇÆĞ, ÀÖÀ¸¸é ¼º°ø
-    void addUser(std::string id, std::string password){};
+private:
+    NemoAPI Nemo;
 };
 
 class AutoTradingSystem {
@@ -65,7 +77,7 @@ public:
     IStockBrockerDriver *StockBrockerDriver = nullptr;
 };
 
-// Test¿ë Fixture
+// Testìš© Fixture
 class StockBrokerDriverTest : public::testing::Test {
 protected:
     std::unique_ptr<IStockBrockerDriver> driver;
@@ -91,26 +103,52 @@ protected:
     }
 };
 
-// Unit Test Code. °è¼Ó Ãß°¡ÇÏ°Ú½À´Ï´Ù.
-TEST_F(KiwiDriverTest, LoginTestSuccess) {
-    driver->addUser("username", "password");
-    bool loginResultSuccess = driver->login("username", "password");
-    EXPECT_EQ(loginResultSuccess, 1);
+// Unit Test Code. ê³„ì† ì¶”ê°€í•˜ê² ìŠµë‹ˆë‹¤.
+TEST_F(NemoDriverTest, NemoLoginTestSuccess) {
+    std::stringstream buffer;
+    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+
+    driver->login("username", "password");
+
+    std::cout.rdbuf(old);
+
+    std::string output = buffer.str();
+    EXPECT_EQ(output, "[NEMO]username login GOOD\n");
 }
-TEST_F(KiwiDriverTest, LoginTestFail) {
-    driver->addUser("username", "password");
-    bool loginResultFail = driver->login("username", "password_wrong");
-    EXPECT_EQ(loginResultFail, 0);
+
+TEST_F(KiwiDriverTest, KiwiLoginTestSuccess) {
+    std::stringstream buffer;
+    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+
+    driver->login("username", "password");
+
+    std::cout.rdbuf(old);
+
+    std::string output = buffer.str();
+    EXPECT_EQ(output, "username login success\n");
 }
-TEST_F(NemoDriverTest, LoginTestSuccess) {
-    driver->addUser("username", "password");
-    bool loginResultSuccess = driver->login("username", "password");
-    EXPECT_EQ(loginResultSuccess, 1);
+
+TEST_F(KiwiDriverTest, BuyOutputTest) {
+    std::stringstream buffer;
+    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+
+    driver->buy("AAPL", 5, 100);
+
+    std::cout.rdbuf(old);
+
+    std::string output = buffer.str();
+    EXPECT_EQ(output, "AAPL : Buy stock ( 100 * 5)");
 }
-TEST_F(NemoDriverTest, LoginTestFail) {
-    driver->addUser("username", "password");
-    bool loginResultFail = driver->login("username", "password_wrong");
-    EXPECT_EQ(loginResultFail, 0);
+TEST_F(NemoDriverTest, BuyOutputTest) {
+    std::stringstream buffer;
+    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+
+    driver->buy("AAPL", 5, 100);
+
+    std::cout.rdbuf(old);
+
+    std::string output = buffer.str();
+    EXPECT_EQ(output, "[NEMO]AAPL buy stock ( price : 5 ) * ( count : 100)");
 }
 
 // Select StockBoroker TC
