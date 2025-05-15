@@ -1,5 +1,7 @@
 #include "gmock/gmock.h"
 #include <string>
+#include "kiwer_api.cpp"
+#include "nemo_api.cpp"
 
 using namespace testing;
 
@@ -12,17 +14,26 @@ public:
 	virtual void login(std::string id, std::string password) = 0;
 	virtual void buy(std::string stockCode, int price, int count) = 0;
 	virtual void sell(std::string stockCode, int price, int count) = 0;
-	virtual void getPrice(std::string stockCode) = 0;
+	virtual int getPrice(std::string stockCode) = 0;
 };
 
 class KiwiDriver : public IStockBrockerDriver
 {
+    KiwerAPI kiwer;
+    
+    int getPrice(std::string stockCode) override {
+        return kiwer.currentPrice(stockCode);
+    }
 
 };
 
 class NemoDriver : public IStockBrockerDriver
 {
+    NemoAPI nemo;
 
+    int getPrice(std::string stockCode) override {
+        return nemo.getMarketPrice(stockCode,1);
+    }
 };
 
 class MockDriver : public IStockBrockerDriver
@@ -31,10 +42,11 @@ public:
 	MOCK_METHOD(void, login, (std::string id, std::string password), (override));
 	MOCK_METHOD(void, buy, (std::string stockCode, int price, int count), (override));
 	MOCK_METHOD(void, sell, (std::string stockCode, int price, int count), (override));
-	MOCK_METHOD(void, getPrice, (std::string stockCode), (override));
+	MOCK_METHOD(int, getPrice, (std::string stockCode), (override));
 };
 
 // Unit Test Code. 계속 추가하겠습니다.
+//feature/getPrice 브랜치로 생성하겠습니다
 
 TEST(MockDriverTest, LoginCalledWithCorrectArguments) {
     MockDriver mock;
