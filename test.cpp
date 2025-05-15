@@ -32,22 +32,30 @@ class KiwiDriver : public IStockBrockerDriver
 {
     bool login(std::string id, std::string password) { return false; };
     void buy(std::string stockCode, int price, int count){};
-    void sell(std::string stockCode, int price, int count){};
+    void sell(std::string stockCode, int price, int count){
+        Kiwer.sell(stockCode, price, count);
+    };
     void getPrice(std::string stockCode){};
 
     // login을 위해서 user를 추가합니다. match되지 않는 user가 없는 상태에서는 login실패, 있으면 성공
     void addUser(std::string id, std::string password){};
+private:
+    KiwerAPI Kiwer;
 };
 
 class NemoDriver : public IStockBrockerDriver
 {
     bool login(std::string id, std::string password) { return false; };
     void buy(std::string stockCode, int price, int count){};
-    void sell(std::string stockCode, int price, int count){};
+    void sell(std::string stockCode, int price, int count){
+        Nemo.sellingStock(stockCode, price, count);
+    };
     void getPrice(std::string stockCode){};
 
     // login을 위해서 user를 추가합니다. match되지 않는 user가 없는 상태에서는 login실패, 있으면 성공
     void addUser(std::string id, std::string password){};
+private:
+    NemoAPI Nemo;
 };
 
 // Test용 Fixture
@@ -119,6 +127,29 @@ TEST_F(NemoDriverTest, BuyOutputTest) {
 
     std::string output = buffer.str();
     EXPECT_EQ(output, "[NEMO]AAPL buy stock ( price : 5 ) * ( count : 100)");
+}
+
+TEST_F(KiwiDriverTest, SellOutputTest) {
+    std::stringstream buffer;
+    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+
+    driver->sell("AAPL", 5, 100);
+
+    std::cout.rdbuf(old);
+
+    std::string output = buffer.str();
+    EXPECT_EQ(output, "AAPL : Sell stock ( 100 * 5)\n");
+}
+TEST_F(NemoDriverTest, SellOutputTest) {
+    std::stringstream buffer;
+    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+
+    driver->sell("AAPL", 5, 100);
+
+    std::cout.rdbuf(old);
+
+    std::string output = buffer.str();
+    EXPECT_EQ(output, "[NEMO]AAPL sell stock ( price : 5 ) * ( count : 100)\n");
 }
 
 int main()
