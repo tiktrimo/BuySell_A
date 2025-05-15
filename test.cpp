@@ -1,7 +1,7 @@
 #include "gmock/gmock.h"
+#include <string>
 #include "kiwer_api.cpp"
 #include "nemo_api.cpp"
-#include <string>
 
 using namespace testing;
 using namespace std;
@@ -24,11 +24,16 @@ public:
 	virtual void login(std::string id, std::string password) = 0;
 	virtual void buy(std::string stockCode, int price, int count) = 0;
 	virtual void sell(std::string stockCode, int price, int count) = 0;
-	virtual void getPrice(std::string stockCode) = 0;
+	virtual int getPrice(std::string stockCode) = 0;
+  	virtual void addUser(std::string id, std::string password) = 0;
+
 };
 
 class KiwiDriver : public IStockBrockerDriver
 {
+public:
+    
+    void addUser(std::string id, std::string password){};
     void login(std::string id, std::string password)
     {
         Kiwer.login(id, password);
@@ -39,7 +44,9 @@ class KiwiDriver : public IStockBrockerDriver
     void sell(std::string stockCode, int price, int count){
         Kiwer.sell(stockCode, count, price);
     };
-    void getPrice(std::string stockCode){};
+    int getPrice(std::string stockCode) {
+        return Kiwer.currentPrice(stockCode);
+    }
 private:
     KiwerAPI Kiwer;
 };
@@ -56,7 +63,9 @@ class NemoDriver : public IStockBrockerDriver
     void sell(std::string stockCode, int price, int count){
         Nemo.sellingStock(stockCode, price, count);
     };
-    void getPrice(std::string stockCode){};
+    int getPrice(std::string stockCode) {
+        return Nemo.getMarketPrice(stockCode, 1);
+    }
 private:
     NemoAPI Nemo;
 };
@@ -157,6 +166,21 @@ TEST_F(NemoDriverTest, BuyOutputTest) {
 
     std::string output = buffer.str();
     EXPECT_EQ(output, "[NEMO]AAPL buy stock ( price : 5 ) * ( count : 100)\n");
+}
+
+TEST_F(NemoDriverTest, GetPriceTest) {
+
+
+   int price = driver->getPrice("AAPL");
+
+    EXPECT_THAT(price, Gt(0));
+}
+TEST_F(KiwiDriverTest, GetPriceTest) {
+
+
+    int price = driver->getPrice("AAPL");
+
+    EXPECT_THAT(price, Gt(0));
 }
 
 
