@@ -4,8 +4,10 @@
 #include "nemo_api.cpp"
 
 using namespace testing;
+using namespace std;
 
-//// ClassÁ¤ÀÇ ¹× ±¸Çö. ´Ù¸¥ ÆÄÀÏ·Î ÀÌµ¿ÇÏ¼Åµµ ÁÁÀ» °Í °°½À´Ï´Ù.
+
+//// Classì •ì˜ ë° êµ¬í˜„. ë‹¤ë¥¸ íŒŒì¼ë¡œ ì´ë™í•˜ì…”ë„ ì¢‹ì„ ê²ƒ ê°™ìŠµë‹ˆë‹¤.
 //class AutoTradingSystem
 //{
 //public:
@@ -13,7 +15,7 @@ using namespace testing;
 //    IStockBrockerDriver* StockBrockerDriver;
 //};
 
-// InterfaceÁ¤ÀÇ ¹× ±¸Çö. ´Ù¸¥ ÆÄÀÏ·Î ÀÌµ¿ÇÏ¼Åµµ ÁÁÀ» °Í °°½À´Ï´Ù.
+// Interfaceì •ì˜ ë° êµ¬í˜„. ë‹¤ë¥¸ íŒŒì¼ë¡œ ì´ë™í•˜ì…”ë„ ì¢‹ì„ ê²ƒ ê°™ìŠµë‹ˆë‹¤.
 
 class IStockBrockerDriver
 {
@@ -23,10 +25,7 @@ public:
 	virtual void buy(std::string stockCode, int price, int count) = 0;
 	virtual void sell(std::string stockCode, int price, int count) = 0;
 	virtual int getPrice(std::string stockCode) = 0;
-
-    // loginÀ» À§ÇØ¼­ user¸¦ Ãß°¡ÇÕ´Ï´Ù. matchµÇÁö ¾Ê´Â user°¡ ¾ø´Â »óÅÂ¿¡¼­´Â login½ÇÆĞ, ÀÖÀ¸¸é ¼º°ø
-    virtual void addUser(std::string id, std::string password) = 0;
-
+  virtual void addUser(std::string id, std::string password) = 0;
 
 };
 
@@ -36,28 +35,34 @@ public:
     int getPrice(std::string stockCode) override {
         return Kiwer.currentPrice(stockCode);
     }
-
-    // loginÀ» À§ÇØ¼­ user¸¦ Ãß°¡ÇÕ´Ï´Ù. matchµÇÁö ¾Ê´Â user°¡ ¾ø´Â »óÅÂ¿¡¼­´Â login½ÇÆĞ, ÀÖÀ¸¸é ¼º°ø
     void addUser(std::string id, std::string password){};
     void login(std::string id, std::string password)
     {
         Kiwer.login(id, password);
     };
-    void buy(std::string stockCode, int price, int count){};
-    void sell(std::string stockCode, int price, int count){};
-
+    void buy(std::string stockCode, int price, int count){
+        Kiwer.buy(stockCode, count, price);
+    };
+    void sell(std::string stockCode, int price, int count){
+        Kiwer.sell(stockCode, price, count);
+    };
+    void getPrice(std::string stockCode){};
 private:
     KiwerAPI Kiwer;
 };
+
 class NemoDriver : public IStockBrockerDriver
 {
-public:
     void login(std::string id, std::string password)
     {
         Nemo.certification(id, password);
     };
-    void buy(std::string stockCode, int price, int count) {};
-    void sell(std::string stockCode, int price, int count) {};
+    void buy(std::string stockCode, int price, int count){
+        Nemo.purchasingStock(stockCode, price, count);
+    };
+    void sell(std::string stockCode, int price, int count){
+        Nemo.sellingStock(stockCode, price, count);
+    };
     int getPrice(std::string stockCode) override {
         return Nemo.getMarketPrice(stockCode, 1);
     }
@@ -65,8 +70,32 @@ private:
     NemoAPI Nemo;
 };
 
-// Test¿ë Fixture
-class StockBrokerDriverTest : public ::testing::Test {
+class AutoTradingSystem {
+public:
+    int selectStockBroker(string brokerName) {
+        int ret = 0;
+
+        if (brokerName == "KIWER") {
+            StockBrockerDriver = new KiwiDriver;
+        }
+        else if (brokerName == "NEMO") {
+            StockBrockerDriver = new NemoDriver;
+        }
+        else {
+            ret = -1;
+        }
+        return ret;
+    }
+
+    IStockBrockerDriver* getStockBroker() {
+        return StockBrockerDriver;
+    }
+   
+    IStockBrockerDriver *StockBrockerDriver = nullptr;
+};
+
+// Testìš© Fixture
+class StockBrokerDriverTest : public::testing::Test {
 protected:
     std::unique_ptr<IStockBrockerDriver> driver;
 
@@ -91,7 +120,7 @@ protected:
     }
 };
 
-// Unit Test Code. °è¼Ó Ãß°¡ÇÏ°Ú½À´Ï´Ù.
+// Unit Test Code. ê³„ì† ì¶”ê°€í•˜ê² ìŠµë‹ˆë‹¤.
 TEST_F(NemoDriverTest, NemoLoginTestSuccess) {
     std::stringstream buffer;
     std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
@@ -125,7 +154,7 @@ TEST_F(KiwiDriverTest, BuyOutputTest) {
     std::cout.rdbuf(old);
 
     std::string output = buffer.str();
-    EXPECT_EQ(output, "AAPL : Buy stock ( 100 * 5)");
+    EXPECT_EQ(output, "AAPL : Buy stock ( 5 * 100)\n");
 }
 TEST_F(NemoDriverTest, BuyOutputTest) {
     std::stringstream buffer;
@@ -136,7 +165,7 @@ TEST_F(NemoDriverTest, BuyOutputTest) {
     std::cout.rdbuf(old);
 
     std::string output = buffer.str();
-    EXPECT_EQ(output, "[NEMO]AAPL buy stock ( price : 5 ) * ( count : 100)");
+    EXPECT_EQ(output, "[NEMO]AAPL buy stock ( price : 5 ) * ( count : 100)\n");
 }
 
 TEST_F(NemoDriverTest, GetPriceTest) {
@@ -153,6 +182,43 @@ TEST_F(KiwiDriverTest, GetPriceTest) {
 
     EXPECT_THAT(price, Gt(0));
 }
+
+
+TEST_F(KiwiDriverTest, SellOutputTest) {
+    std::stringstream buffer;
+    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+
+    driver->sell("AAPL", 5, 100);
+
+    std::cout.rdbuf(old);
+
+    std::string output = buffer.str();
+    EXPECT_EQ(output, "AAPL : Sell stock ( 100 * 5)\n");
+}
+TEST_F(NemoDriverTest, SellOutputTest) {
+    std::stringstream buffer;
+    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+
+    driver->sell("AAPL", 5, 100);
+
+    std::cout.rdbuf(old);
+
+    std::string output = buffer.str();
+    EXPECT_EQ(output, "[NEMO]AAPL sell stock ( price : 5 ) * ( count : 100)\n");
+}
+
+TEST(StockBrokerDriverTest, selectCorrectBroker) {
+    AutoTradingSystem autoTradingSystem;
+    
+    EXPECT_EQ(0, autoTradingSystem.selectStockBroker("KIWER"));
+}
+
+TEST(StockBrokerDriverTest, selectWrongBroker) {
+    AutoTradingSystem autoTradingSystem;
+    autoTradingSystem.selectStockBroker("MANGO");
+    EXPECT_THAT(autoTradingSystem.getStockBroker(), IsNull());
+}
+
 
 int main()
 {
