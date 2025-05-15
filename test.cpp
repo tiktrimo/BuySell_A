@@ -19,66 +19,48 @@ class IStockBrockerDriver
 {
 public:
 	virtual ~IStockBrockerDriver() = default;
-	virtual bool login(std::string id, std::string password) = 0;
+	virtual void login(std::string id, std::string password) = 0;
 	virtual void buy(std::string stockCode, int price, int count) = 0;
 	virtual void sell(std::string stockCode, int price, int count) = 0;
 	virtual int getPrice(std::string stockCode) = 0;
 
     // login을 위해서 user를 추가합니다. match되지 않는 user가 없는 상태에서는 login실패, 있으면 성공
     virtual void addUser(std::string id, std::string password) = 0;
+
+
 };
 
 class KiwiDriver : public IStockBrockerDriver
 {
-
-    KiwerAPI Kiwer;
-    
     int getPrice(std::string stockCode) override {
         return Kiwer.currentPrice(stockCode);
     }
 
-    bool login(std::string id, std::string password) { return false; };
+    // login을 위해서 user를 추가합니다. match되지 않는 user가 없는 상태에서는 login실패, 있으면 성공
+    void addUser(std::string id, std::string password){};
+    void login(std::string id, std::string password)
+    {
+        Kiwer.login(id, password);
+    };
     void buy(std::string stockCode, int price, int count){};
     void sell(std::string stockCode, int price, int count){};
 
-    // login을 위해서 user를 추가합니다. match되지 않는 user가 없는 상태에서는 login실패, 있으면 성공
-    void addUser(std::string id, std::string password){};
+private:
+    KiwerAPI Kiwer;
 };
-
 class NemoDriver : public IStockBrockerDriver
 {
-    NemoAPI Nemo;
-
+    void login(std::string id, std::string password)
+    {
+        Nemo.certification(id, password);
+    };
+    void buy(std::string stockCode, int price, int count) {};
+    void sell(std::string stockCode, int price, int count) {};
     int getPrice(std::string stockCode) override {
-        return Nemo.getMarketPrice(stockCode,1);
+        return Nemo.getMarketPrice(stockCode, 1);
     }
-};
-
-class MockDriver : public IStockBrockerDriver
-{
-public:
-	MOCK_METHOD(bool, login, (std::string id, std::string password), (override));
-	MOCK_METHOD(void, buy, (std::string stockCode, int price, int count), (override));
-	MOCK_METHOD(void, sell, (std::string stockCode, int price, int count), (override));
-	MOCK_METHOD(int, getPrice, (std::string stockCode), (override));
-};
-
-// Unit Test Code. 계속 추가하겠습니다.
-//feature/getPrice 브랜치로 생성하겠습니다
-
-TEST(MockDriverTest, LoginCalledWithCorrectArguments) {
-    MockDriver mock;
-    EXPECT_CALL(mock, login(StrEq("username"), StrEq("password"))).Times(1);
-
-    mock.login("username", "password");
-
-    bool login(std::string id, std::string password) { return false; };
-    void buy(std::string stockCode, int price, int count){};
-    void sell(std::string stockCode, int price, int count){};
-    void getPrice(std::string stockCode){};
-
-    // login을 위해서 user를 추가합니다. match되지 않는 user가 없는 상태에서는 login실패, 있으면 성공
-    void addUser(std::string id, std::string password){};
+private:
+    NemoAPI Nemo;
 };
 
 // Test용 Fixture
@@ -108,25 +90,28 @@ protected:
 };
 
 // Unit Test Code. 계속 추가하겠습니다.
-TEST_F(KiwiDriverTest, LoginTestSuccess) {
-    driver->addUser("username", "password");
-    bool loginResultSuccess = driver->login("username", "password");
-    EXPECT_EQ(loginResultSuccess, 1);
+TEST_F(NemoDriverTest, NemoLoginTestSuccess) {
+    std::stringstream buffer;
+    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+
+    driver->login("username", "password");
+
+    std::cout.rdbuf(old);
+
+    std::string output = buffer.str();
+    EXPECT_EQ(output, "[NEMO]username login GOOD\n");
 }
-TEST_F(KiwiDriverTest, LoginTestFail) {
-    driver->addUser("username", "password");
-    bool loginResultFail = driver->login("username", "password_wrong");
-    EXPECT_EQ(loginResultFail, 0);
-}
-TEST_F(NemoDriverTest, LoginTestSuccess) {
-    driver->addUser("username", "password");
-    bool loginResultSuccess = driver->login("username", "password");
-    EXPECT_EQ(loginResultSuccess, 1);
-}
-TEST_F(NemoDriverTest, LoginTestFail) {
-    driver->addUser("username", "password");
-    bool loginResultFail = driver->login("username", "password_wrong");
-    EXPECT_EQ(loginResultFail, 0);
+
+TEST_F(KiwiDriverTest, KiwiLoginTestSuccess) {
+    std::stringstream buffer;
+    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+
+    driver->login("username", "password");
+
+    std::cout.rdbuf(old);
+
+    std::string output = buffer.str();
+    EXPECT_EQ(output, "username login success\n");
 }
 
 TEST_F(KiwiDriverTest, BuyOutputTest) {
