@@ -3,7 +3,7 @@
 
 using namespace testing;
 
-// InterfaceÁ¤ÀÇ ¹× ±¸Çö. ´Ù¸¥ ÆÄÀÏ·Î ÀÌµ¿ÇÏ¼Åµµ ÁÁÀ» °Í °°½À´Ï´Ù.
+// Interfaceì •ì˜ ë° êµ¬í˜„. ë‹¤ë¥¸ íŒŒì¼ë¡œ ì´ë™í•˜ì…”ë„ ì¢‹ì„ ê²ƒ ê°™ìŠµë‹ˆë‹¤.
 
 class IStockBrockerDriver
 {
@@ -34,7 +34,9 @@ public:
 	MOCK_METHOD(void, getPrice, (std::string stockCode), (override));
 };
 
-// Unit Test Code. °è¼Ó Ãß°¡ÇÏ°Ú½À´Ï´Ù.
+void selectStockBroker(void) {}
+
+// Unit Test Code. ê³„ì† ì¶”ê°€í•˜ê² ìŠµë‹ˆë‹¤.
 
 TEST(MockDriverTest, LoginCalledWithCorrectArguments) {
     MockDriver mock;
