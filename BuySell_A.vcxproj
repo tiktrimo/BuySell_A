@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AutoTradingSystem.cpp" />
     <ClCompile Include="kiwer_api.cpp" />
     <ClCompile Include="nemo_api.cpp" />
     <ClCompile Include="test.cpp" />
