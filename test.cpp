@@ -3,7 +3,7 @@
 
 using namespace testing;
 
-// Interface정의 및 구현. 다른 파일로 이동하셔도 좋을 것 같습니다.
+// Interface?�의 �?구현. ?�른 ?�일�??�동?�셔??좋을 �?같습?�다.
 
 class IStockBrockerDriver
 {
@@ -66,23 +66,11 @@ protected:
     }
 };
 
-<<<<<<< HEAD
-void selectStockBroker(void) {}
-
-// Unit Test Code. 계속 추가하겠습니다.
-
-TEST(MockDriverTest, LoginCalledWithCorrectArguments) {
-    MockDriver mock;
-    EXPECT_CALL(mock, login(StrEq("username"), StrEq("password"))).Times(1);
-
-    mock.login("username", "password");
-=======
 // Unit Test Code. ��� �߰��ϰڽ��ϴ�.
 TEST_F(KiwiDriverTest, LoginTestSuccess) {
     driver->addUser("username", "password");
     bool loginResultSuccess = driver->login("username", "password");
     EXPECT_EQ(loginResultSuccess, 1);
->>>>>>> 796f1dfec2bcc28642033f64dfddb8f9beb9e302
 }
 TEST_F(KiwiDriverTest, LoginTestFail) {
     driver->addUser("username", "password");
