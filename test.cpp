@@ -7,18 +7,6 @@ using namespace testing;
 using namespace std;
 
 
-//// Class정의 및 구현. 다른 파일로 이동하셔도 좋을 것 같습니다.
-//class AutoTradingSystem
-//{
-//public:
-//private:
-//    IStockBrockerDriver* StockBrockerDriver;
-//};
-
-// Interface정의 및 구현. 다른 파일로 이동하셔도 좋을 것 같습니다.
-
-
-
 // Test용 Fixture
 class StockBrokerDriverTest : public::testing::Test {
 protected:
