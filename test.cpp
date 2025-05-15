@@ -1,7 +1,17 @@
 #include "gmock/gmock.h"
+#include "kiwer_api.cpp"
+#include "nemo_api.cpp"
 #include <string>
 
 using namespace testing;
+
+//// Class정의 및 구현. 다른 파일로 이동하셔도 좋을 것 같습니다.
+//class AutoTradingSystem
+//{
+//public:
+//private:
+//    IStockBrockerDriver* StockBrockerDriver;
+//};
 
 // Interface정의 및 구현. 다른 파일로 이동하셔도 좋을 것 같습니다.
 
@@ -86,6 +96,29 @@ TEST_F(NemoDriverTest, LoginTestFail) {
     driver->addUser("username", "password");
     bool loginResultFail = driver->login("username", "password_wrong");
     EXPECT_EQ(loginResultFail, 0);
+}
+
+TEST_F(KiwiDriverTest, BuyOutputTest) {
+    std::stringstream buffer;
+    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+
+    driver->buy("AAPL", 5, 100);
+
+    std::cout.rdbuf(old);
+
+    std::string output = buffer.str();
+    EXPECT_EQ(output, "AAPL : Buy stock ( 100 * 5)");
+}
+TEST_F(NemoDriverTest, BuyOutputTest) {
+    std::stringstream buffer;
+    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+
+    driver->buy("AAPL", 5, 100);
+
+    std::cout.rdbuf(old);
+
+    std::string output = buffer.str();
+    EXPECT_EQ(output, "[NEMO]AAPL buy stock ( price : 5 ) * ( count : 100)");
 }
 
 int main()
