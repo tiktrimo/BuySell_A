@@ -67,6 +67,6 @@ public:
     IStockBrockerDriver* getStockBroker() {
         return StockBrockerDriver;
     }
-
+private:
     IStockBrockerDriver* StockBrockerDriver = nullptr;
 };
