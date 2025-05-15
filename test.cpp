@@ -32,6 +32,7 @@ public:
 
 class KiwiDriver : public IStockBrockerDriver
 {
+public:
     int getPrice(std::string stockCode) override {
         return Kiwer.currentPrice(stockCode);
     }
@@ -50,6 +51,7 @@ private:
 };
 class NemoDriver : public IStockBrockerDriver
 {
+public:
     void login(std::string id, std::string password)
     {
         Nemo.certification(id, password);
@@ -135,6 +137,21 @@ TEST_F(NemoDriverTest, BuyOutputTest) {
 
     std::string output = buffer.str();
     EXPECT_EQ(output, "[NEMO]AAPL buy stock ( price : 5 ) * ( count : 100)");
+}
+
+TEST_F(NemoDriverTest, GetPriceTest) {
+
+
+   int price = driver->getPrice("AAPL");
+
+    EXPECT_THAT(price, Gt(0));
+}
+TEST_F(KiwiDriverTest, GetPriceTest) {
+
+
+    int price = driver->getPrice("AAPL");
+
+    EXPECT_THAT(price, Gt(0));
 }
 
 int main()

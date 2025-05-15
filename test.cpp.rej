@@ -1,0 +1,25 @@
+diff a/test.cpp b/test.cpp	(rejected hunks)
+@@ -19,17 +19,22 @@
+ {
+ public:
+ 	virtual ~IStockBrockerDriver() = default;
+-	virtual bool login(std::string id, std::string password) = 0;
++	virtual void login(std::string id, std::string password) = 0;
+ 	virtual void buy(std::string stockCode, int price, int count) = 0;
+ 	virtual void sell(std::string stockCode, int price, int count) = 0;
++<<<<<<< HEAD
+ 	virtual int getPrice(std::string stockCode) = 0;
+ 
+     // login�� ���ؼ� user�� �߰��մϴ�. match���� �ʴ� user�� ���� ���¿����� login����, ������ ����
+     virtual void addUser(std::string id, std::string password) = 0;
++=======
++	virtual void getPrice(std::string stockCode) = 0;
++>>>>>>> master
+ };
+ 
+ class KiwiDriver : public IStockBrockerDriver
+ {
++<<<<<<< HEAD
+ 
+     KiwerAPI Kiwer;
+     
