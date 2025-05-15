@@ -191,7 +191,7 @@ TEST(StockBrokerDriverTest, selectCorrectBroker) {
 
 TEST(StockBrokerDriverTest, selectWrongBroker) {
     AutoTradingSystem autoTradingSystem;
-
+    autoTradingSystem.selectStockBroker("MANGO");
     EXPECT_THAT(autoTradingSystem.getStockBroker(), IsNull());
 }
 
