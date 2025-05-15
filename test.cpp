@@ -37,7 +37,7 @@ class KiwiDriver : public IStockBrockerDriver
         Kiwer.buy(stockCode, count, price);
     };
     void sell(std::string stockCode, int price, int count){
-        Kiwer.sell(stockCode, price, count);
+        Kiwer.sell(stockCode, count, price);
     };
     void getPrice(std::string stockCode){};
 private:
@@ -164,7 +164,7 @@ TEST_F(KiwiDriverTest, SellOutputTest) {
     std::stringstream buffer;
     std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
 
-    driver->sell("AAPL", 5, 100);
+    driver->sell("AAPL", 100, 5);
 
     std::cout.rdbuf(old);
 
